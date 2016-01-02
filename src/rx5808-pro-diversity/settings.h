@@ -29,19 +29,19 @@ SOFTWARE.
 
 // Choose the display you will be using
 // you will also have to uncomment the includes in the main project.
-//#define TVOUT_SCREENS
-#define OLED_128x64_ADAFRUIT_SCREENS
+#define TVOUT_SCREENS
+//#define OLED_128x64_ADAFRUIT_SCREENS
 
 // u8glib has performance issues.
 //#define OLED_128x64_U8G_SCREENS
 
 // this will be displayed on the screensaver.
 // Up to 10 letters
-#define CALL_SIGN "CALL SIGN"
+#define CALL_SIGN "Dust"
 
 // Feature Togglels
 #define USE_DIVERSITY
-#define USE_IR_EMITTER
+//#define USE_IR_EMITTER
 //#define USE_FLIP_SCREEN
 #define USE_BOOT_LOGO
 
@@ -56,14 +56,16 @@ SOFTWARE.
 #define spiClockPin 12
 
 // Receiver PINS
-#define receiverA_led A0
+#define receiverA_led A1
 #define rssiPinA A6
 
 #define useReceiverA 1
 
 #ifdef USE_DIVERSITY
     // Diversity
-    #define receiverB_led A1
+    #define receiverB_led A0
+    #define receiverA_audio A3
+    #define receiverB_audio A2
     #define rssiPinB A7
     #define useReceiverAuto 0
     #define useReceiverB 2
@@ -77,10 +79,10 @@ SOFTWARE.
 #endif
 
 // this two are minimum required
-#define buttonUp 2
+#define buttonUp 4
 #define buttonMode 3
 // optional comfort buttons
-#define buttonDown 4
+#define buttonDown 2
 #define buttonSave 5
 // Buzzer
 #define buzzer 6

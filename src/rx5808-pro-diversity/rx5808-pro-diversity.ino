@@ -40,14 +40,14 @@ SOFTWARE.
 // uncomment depending on the display you are using.
 // this is an issue with the arduino preprocessor
 #ifdef TVOUT_SCREENS
-//    #include <TVout.h>
-//    #include <fontALL.h>
+    #include <TVout.h>
+    #include <fontALL.h>
 #endif
 #ifdef OLED_128x64_ADAFRUIT_SCREENS
-    #include <Adafruit_SSD1306.h>
-    #include <Adafruit_GFX.h>
-    #include <Wire.h>
-    #include <SPI.h>
+//    #include <Adafruit_SSD1306.h>
+//    #include <Adafruit_GFX.h>
+//    #include <Wire.h>
+//    #include <SPI.h>
 #endif
 #ifdef OLED_128x64_U8G_SCREENS
 //    #include <U8glib.h>
@@ -161,6 +161,8 @@ void setup()
     pinMode(receiverA_led,OUTPUT);
 #ifdef USE_DIVERSITY
     pinMode(receiverB_led,OUTPUT);
+    pinMode(receiverA_audio,OUTPUT);
+    pinMode(receiverB_audio,OUTPUT);
 #endif
     setReceiver(useReceiverA);
     // SPI pins for RX control
@@ -1063,11 +1065,15 @@ void setReceiver(uint8_t receiver) {
     {
         digitalWrite(receiverB_led, LOW);
         digitalWrite(receiverA_led, HIGH);
+        digitalWrite(receiverB_audio, LOW);
+        digitalWrite(receiverA_audio, HIGH);
     }
     else
     {
         digitalWrite(receiverA_led, LOW);
         digitalWrite(receiverB_led, HIGH);
+        digitalWrite(receiverA_audio, LOW);
+        digitalWrite(receiverB_audio, HIGH);
     }
 #else
     digitalWrite(receiverA_led, HIGH);
