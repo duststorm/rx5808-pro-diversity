@@ -24,8 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef display_h
-#define display_h
+#ifndef display_screens_h
+#define display_screens_h
 
 
 #include <avr/pgmspace.h>
@@ -36,47 +36,47 @@ SOFTWARE.
 // public update method
 // private update draw method
 
-class screens
+class Screen
 {
-    private: // helper functions for screens.
+    protected: // helper functions for screens.
         uint8_t last_rssi;
         uint8_t best_rssi;
         uint8_t last_channel;
-        void reset();
-        void drawTitleBox(const char *title);
+        virtual void reset();
+        virtual void drawTitleBox(const char *title);
 
     public:
-        screens();
-        char begin(const char *call_sign);
-        void flip();
+        Screen() { last_channel = -1; last_rssi = 0; };
+        virtual char begin(const char *call_sign) = 0;
+        virtual void flip() = 0;
 
         // MAIN MENU
-        void mainMenu(uint8_t menu_id);
+        virtual void mainMenu(uint8_t menu_id) = 0;
 
         // SEEK & MANUAL MODE
-        void seekMode(uint8_t state); // seek and manual mode
-        void updateSeekMode(uint8_t state, uint8_t channelIndex, uint8_t channel, uint8_t rssi, uint16_t channelFrequency, uint8_t rssi_seek_threshold, bool locked); // seek and manual mode
+        virtual void seekMode(uint8_t state) = 0; // seek and manual mode
+        virtual void updateSeekMode(uint8_t state, uint8_t channelIndex, uint8_t channel, uint8_t rssi, uint16_t channelFrequency, uint8_t rssi_seek_threshold, bool locked) = 0; // seek and manual mode
 
         // BAND SCAN
-        void bandScanMode(uint8_t state);
-        void updateBandScanMode(bool in_setup, uint8_t channel, uint8_t rssi, uint8_t channelName, uint16_t channelFrequency, uint16_t rssi_setup_min_a, uint16_t rssi_setup_max_a);
+        virtual void bandScanMode(uint8_t state) = 0;
+        virtual void updateBandScanMode(bool in_setup, uint8_t channel, uint8_t rssi, uint8_t channelName, uint16_t channelFrequency, uint16_t rssi_setup_min_a, uint16_t rssi_setup_max_a) = 0;
 
         // SCREEN SAVER
-        void screenSaver(uint8_t channelName, uint16_t channelFrequency, const char *call_sign);
-        void screenSaver(uint8_t diversity_mode, uint8_t channelName, uint16_t channelFrequency, const char *call_sign);
-        void updateScreenSaver(uint8_t rssi);
-        void updateScreenSaver(char active_receiver, uint8_t rssi, uint8_t rssiA, uint8_t rssiB); // diversity
+        virtual void screenSaver(uint8_t channelName, uint16_t channelFrequency, const char *call_sign) = 0;
+        virtual void screenSaver(uint8_t diversity_mode, uint8_t channelName, uint16_t channelFrequency, const char *call_sign) = 0;
+        virtual void updateScreenSaver(uint8_t rssi) = 0;
+        virtual void updateScreenSaver(char active_receiver, uint8_t rssi, uint8_t rssiA, uint8_t rssiB) = 0; // diversity
 
         // DIVERSITY
-        void diversity(uint8_t diversity_mode);
-        void updateDiversity(char active_receiver, uint8_t rssiA, uint8_t rssiB);
+        virtual void diversity(uint8_t diversity_mode) = 0;
+        virtual void updateDiversity(char active_receiver, uint8_t rssiA, uint8_t rssiB) = 0;
 
         // SETUP MENU
-        void setupMenu();
-        void updateSetupMenu(uint8_t menu_id,bool settings_beeps,bool settings_orderby_channel, const char *call_sign, char editing);
+        virtual void setupMenu() = 0;
+        virtual void updateSetupMenu(uint8_t menu_id,bool settings_beeps,bool settings_orderby_channel, const char *call_sign, char editing) = 0;
 
         // SAVE
-        void save(uint8_t mode, uint8_t channelIndex, uint16_t channelFrequency, const char *call_sign);
-        void updateSave(const char *msg);
+        virtual void save(uint8_t mode, uint8_t channelIndex, uint16_t channelFrequency, const char *call_sign) = 0;
+        virtual void updateSave(const char *msg) = 0;
 };
 #endif

@@ -37,24 +37,39 @@ SOFTWARE.
 
 #include "settings.h"
 
+#include "screens.h"
+#include "screencollection.h"
+ScreenCollection drawScreen;
+
+#include "oledscreen.h"
+OLEDScreen oledscreen;
+
+
 // uncomment depending on the display you are using.
 // this is an issue with the arduino preprocessor
 #ifdef TVOUT_SCREENS
     #include <TVout.h>
     #include <fontALL.h>
+    #include "tvscreen.h"
+    // TODO temporary fix
+    #include "TVOut_screens.cpp"
+    TVScreen tvscreen;
 #endif
 #ifdef OLED_128x64_ADAFRUIT_SCREENS
-//    #include <Adafruit_SSD1306.h>
-//    #include <Adafruit_GFX.h>
-//    #include <Wire.h>
-//    #include <SPI.h>
+// TODO do these includes in the relevant Screen subclass, not here
+    #include <Adafruit_SSD1306.h>
+    #include <Adafruit_GFX.h>
+    #include <Wire.h>
+// TODO why do we only need SPI when using oled? It's used for talking to boscam modules, right?
+    #include <SPI.h>
+    #include "oledscreen.h"
+    //OLEDScreen oledscreen;
 #endif
 #ifdef OLED_128x64_U8G_SCREENS
 //    #include <U8glib.h>
+//    #include "oledscreen.h"
 #endif
 
-#include "screens.h"
-screens drawScreen;
 
 // Channels to sent to the SPI registers
 const uint16_t channelTable[] PROGMEM = {
@@ -140,6 +155,13 @@ bool settings_orderby_channel = true;
 // SETUP ----------------------------------------------------------------------------
 void setup()
 {
+#ifdef TVOUT_SCREENS
+    drawScreen.setTvScreen(&tvscreen);
+#endif
+#ifdef OLED_128x64_ADAFRUIT_SCREENS
+    //drawScreen.setOledScreen(&oledscreen);
+#endif
+  
     // IO INIT
     // initialize digital pin 13 LED as an output.
     pinMode(led, OUTPUT); // status pin for TV mode errors
@@ -510,7 +532,6 @@ void loop()
     /*************************************/
     /*   Processing depending of state   */
     /*************************************/
-#ifndef TVOUT_SCREENS
     if(state == STATE_SCREEN_SAVER) {
 #ifdef USE_DIVERSITY
         drawScreen.screenSaver(diversity_mode, pgm_read_byte_near(channelNames + channelIndex), pgm_read_word_near(channelFreqTable + channelIndex), call_sign);
@@ -532,7 +553,6 @@ void loop()
         time_screen_saver=0;
         return;
     }
-#endif
 
 #ifdef USE_DIVERSITY
     if(state == STATE_DIVERSITY) {
@@ -688,7 +708,7 @@ void loop()
                 time_screen_saver=0;
             }
         }
-#ifndef TVOUT_SCREENS
+#if SCREENSAVER_TIMEOUT > 0
         // change to screensaver after lock and 5 seconds has passed.
         if(time_screen_saver+5000 < millis() && time_screen_saver != 0 && rssi > 50 ||
             (time_screen_saver != 0 && time_screen_saver + (SCREENSAVER_TIMEOUT*1000) < millis())) {

@@ -26,10 +26,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include "settings.h"
 
 #ifdef TVOUT_SCREENS
-#include "screens.h" // function headers
+#include "tvscreen.h" // function headers
 #include <Arduino.h>
 
 
@@ -57,12 +56,13 @@ SOFTWARE.
 
 TVout TV;
 
-screens::screens() {
-    last_channel = -1;
-    last_rssi = 0;
+TVScreen::TVScreen()
+    : Screen()
+{
 }
 
-char screens::begin(const char *call_sign) {
+
+char TVScreen::begin(const char *call_sign) {
     // 0 if no error.
     // 1 if x is not divisable by 8.
     // 2 if y is to large (NTSC only cannot fill PAL vertical resolution by 8bit limit)
@@ -70,21 +70,21 @@ char screens::begin(const char *call_sign) {
     return TV.begin(TV_FORMAT, TV_COLS, TV_ROWS);
 }
 
-void screens::reset() {
+void TVScreen::reset() {
     TV.clear_screen();
     TV.select_font(font8x8);
 }
 
-void screens::flip() {
+void TVScreen::flip() {
 }
 
-void screens::drawTitleBox(const char *title) {
+void TVScreen::drawTitleBox(const char *title) {
     TV.draw_rect(0,0,127,95,  WHITE);
     TV.printPGM(((127-strlen_P(title)*8)/2), 3,  title);
     TV.draw_rect(0,0,127,14,  WHITE,INVERT);
 }
 
-void screens::mainMenu(uint8_t menu_id) {
+void TVScreen::mainMenu(uint8_t menu_id) {
     reset(); // start from fresh screen.
     drawTitleBox(PSTR("MODE SELECTION"));
 
@@ -103,7 +103,7 @@ void screens::mainMenu(uint8_t menu_id) {
     TV.draw_rect(0,3+(menu_id+1)*MENU_Y_SIZE,127,12,  WHITE, INVERT);
 }
 
-void screens::seekMode(uint8_t state) {
+void TVScreen::seekMode(uint8_t state) {
     last_channel = -1;
     reset(); // start from fresh screen.
     if (state == STATE_MANUAL)
@@ -132,7 +132,7 @@ void screens::seekMode(uint8_t state) {
 
 }
 
-void screens::updateSeekMode(uint8_t state, uint8_t channelIndex, uint8_t channel, uint8_t rssi, uint16_t channelFrequency, uint8_t rssi_seek_threshold, bool locked) {
+void TVScreen::updateSeekMode(uint8_t state, uint8_t channelIndex, uint8_t channel, uint8_t rssi, uint16_t channelFrequency, uint8_t rssi_seek_threshold, bool locked) {
     // display refresh handler
     TV.select_font(font8x8);
     if(channelIndex != last_channel) // only updated on changes
@@ -216,7 +216,7 @@ void screens::updateSeekMode(uint8_t state, uint8_t channelIndex, uint8_t channe
     last_channel = channelIndex;
 }
 
-void screens::bandScanMode(uint8_t state) {
+void TVScreen::bandScanMode(uint8_t state) {
     reset(); // start from fresh screen.
     best_rssi = 0;
     if(state==STATE_SCAN)
@@ -247,7 +247,7 @@ void screens::bandScanMode(uint8_t state) {
     TV.printPGM(111, (TV_ROWS - TV_SCANNER_OFFSET + 2), PSTR("5945"));
 }
 
-void screens::updateBandScanMode(bool in_setup, uint8_t channel, uint8_t rssi, uint8_t channelName, uint16_t channelFrequency, uint16_t rssi_setup_min_a, uint16_t rssi_setup_max_a) {
+void TVScreen::updateBandScanMode(bool in_setup, uint8_t channel, uint8_t rssi, uint8_t channelName, uint16_t channelFrequency, uint16_t rssi_setup_min_a, uint16_t rssi_setup_max_a) {
     // force tune on new scan start to get right RSSI value
     static uint8_t writePos=SCANNER_LIST_X_POS;
     // channel marker
@@ -298,10 +298,11 @@ void screens::updateBandScanMode(bool in_setup, uint8_t channel, uint8_t rssi, u
     last_channel = channel;
 }
 
-void screens::screenSaver(uint8_t channelName, uint16_t channelFrequency, const char *call_sign) {
+void TVScreen::screenSaver(uint8_t channelName, uint16_t channelFrequency, const char *call_sign) {
     screenSaver(-1, channelName, channelFrequency, call_sign);
 }
-void screens::screenSaver(uint8_t diversity_mode, uint8_t channelName, uint16_t channelFrequency, const char *call_sign) {
+void TVScreen::screenSaver(uint8_t diversity_mode, uint8_t channelName, uint16_t channelFrequency, const char *call_sign) {
+ // TODO implement
  // not used in TVOut ... yet
 /*    reset();
     TV.select_font(font8x8);
@@ -331,15 +332,15 @@ void screens::screenSaver(uint8_t diversity_mode, uint8_t channelName, uint16_t 
 */
 }
 
-void screens::updateScreenSaver(uint8_t rssi) {
+void TVScreen::updateScreenSaver(uint8_t rssi) {
     updateScreenSaver(-1, rssi, -1, -1);
 }
-void screens::updateScreenSaver(char active_receiver, uint8_t rssi, uint8_t rssiA, uint8_t rssiB) {
+void TVScreen::updateScreenSaver(char active_receiver, uint8_t rssi, uint8_t rssiA, uint8_t rssiB) {
 // not used in TVOut ... yet
 }
 
 #ifdef USE_DIVERSITY
-void screens::diversity(uint8_t diversity_mode) {
+void TVScreen::diversity(uint8_t diversity_mode) {
     reset();
     drawTitleBox(PSTR("DIVERSITY"));
     TV.printPGM(10, 5+1*MENU_Y_SIZE, PSTR("Auto"));
@@ -353,7 +354,7 @@ void screens::diversity(uint8_t diversity_mode) {
 
     TV.draw_rect(0,3+(diversity_mode+1)*MENU_Y_SIZE,127,12,  WHITE, INVERT);
 }
-void screens::updateDiversity(char active_receiver, uint8_t rssiA, uint8_t rssiB){
+void TVScreen::updateDiversity(char active_receiver, uint8_t rssiA, uint8_t rssiB){
     #define RSSI_BAR_SIZE 100
     uint8_t rssi_scaled=map(rssiA, 1, 100, 1, RSSI_BAR_SIZE);
     // clear last bar
@@ -372,9 +373,9 @@ void screens::updateDiversity(char active_receiver, uint8_t rssiA, uint8_t rssiB
 #endif
 
 
-void screens::setupMenu(){
+void TVScreen::setupMenu(){
 }
-void screens::updateSetupMenu(uint8_t menu_id,bool settings_beeps,bool settings_orderby_channel, const char *call_sign, char editing){
+void TVScreen::updateSetupMenu(uint8_t menu_id,bool settings_beeps,bool settings_orderby_channel, const char *call_sign, char editing){
     reset();
     drawTitleBox(PSTR("SETUP MENU"));
 
@@ -419,7 +420,7 @@ void screens::updateSetupMenu(uint8_t menu_id,bool settings_beeps,bool settings_
     TV.draw_rect(0,3+(menu_id+1)*MENU_Y_SIZE,127,12,  WHITE, INVERT);
 }
 
-void screens::save(uint8_t mode, uint8_t channelIndex, uint16_t channelFrequency, const char *call_sign) {
+void TVScreen::save(uint8_t mode, uint8_t channelIndex, uint16_t channelFrequency, const char *call_sign) {
     reset();
     drawTitleBox(PSTR("SAVE SETTINGS"));
     TV.printPGM(10, 5+1*MENU_Y_SIZE, PSTR("Mode:"));
@@ -465,7 +466,7 @@ void screens::save(uint8_t mode, uint8_t channelIndex, uint16_t channelFrequency
     TV.printPGM(10, 5+5*MENU_Y_SIZE, PSTR("--- SAVED ---"));
 }
 
-void screens::updateSave(const char * msg) {
+void TVScreen::updateSave(const char * msg) {
     TV.select_font(font4x6);
     TV.print(((127-strlen(msg)*4)/2), 14+5*MENU_Y_SIZE, msg);
 }

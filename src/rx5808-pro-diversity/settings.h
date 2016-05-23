@@ -30,7 +30,7 @@ SOFTWARE.
 // Choose the display you will be using
 // you will also have to uncomment the includes in the main project.
 #define TVOUT_SCREENS
-//#define OLED_128x64_ADAFRUIT_SCREENS
+#define OLED_128x64_ADAFRUIT_SCREENS
 
 // u8glib has performance issues.
 //#define OLED_128x64_U8G_SCREENS
@@ -78,7 +78,7 @@ SOFTWARE.
     #define DIVERSITY_MAX_CHECKS 5
 #endif
 
-// this two are minimum required
+// these two are minimum required
 #define buttonUp 4
 #define buttonMode 3
 // optional comfort buttons
@@ -118,6 +118,8 @@ SOFTWARE.
 #define STATE_SCREEN_SAVER 8
 
 // Seconds to wait before force entering screensaver
+// Set to 0 or negative number to disable
+// Might not be useful for tv-out only
 #define SCREENSAVER_TIMEOUT 30
 
 #define START_STATE STATE_SEEK
